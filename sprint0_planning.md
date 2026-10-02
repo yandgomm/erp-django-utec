@@ -17,20 +17,20 @@ y repositorio en GitHub con al menos 10 commits.
 
 **Total de puntos del sprint:** 10
 
-## Sprint Backlog — Tareas técnicas W01
 
-| Tarea | Responsable | Estado | Horas est. |
-|---|---|---|---|
-| Configurar Python 3.11 embeddable en USB | Dev | ✅ | 0.5 h |
-| Instalar pip y virtualenv | Dev | ✅ | 0.3 h |
-| Configurar Git Portable | Dev | ✅ | 0.3 h |
-| Crear scripts .bat de sesión | Dev | ✅ | 0.5 h |
-| Crear proyecto Django `core` | Dev | ✅ | 0.5 h |
-| Crear 5 apps y urls mínimas | Dev | ✅ | 1.0 h |
-| Configurar settings.py base | Dev | ✅ | 0.5 h |
-| Crear vista de bienvenida | Dev | ✅ | 0.3 h |
-| product_backlog.md + sprint0_planning.md | Dev | ✅ | 0.5 h |
-| Primer commit en GitHub | Dev | ✅ | 0.3 h |
+## Sprint Backlog — W02 (actualización de estados)
+
+| Tarea | Estado |
+|---|---|
+| Crear templates/base.html con Fable 5 AzulERP | ✅ |
+| Crear 5 plantillas index.html por app | ✅ |
+| Migrar vistas a views.py con render() | ✅ |
+| Configurar WhiteNoise y STATIC_ROOT | ✅ |
+| Crear core/settings_prod.py borrador | ✅ |
+| Actualizar requirements.txt (gunicorn, psycopg2) | ✅ |
+| Crear tests/test_w02_mvt.py — 12 tests OK | ✅ |
+| HU-E1-03 Repositorio GitHub: avance W02 commiteado | ✅ |
+
 
 ## Criterios de aceptación del Sprint 0
 - python manage.py check → 0 issues
