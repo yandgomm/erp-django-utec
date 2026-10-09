@@ -18,18 +18,17 @@ y repositorio en GitHub con al menos 10 commits.
 **Total de puntos del sprint:** 10
 
 
-## Sprint Backlog — W02 (actualización de estados)
+## Sprint Backlog - W02 (actualizacion de estados)
 
 | Tarea | Estado |
 |---|---|
-| Crear templates/base.html con Fable 5 AzulERP | ✅ |
-| Crear 5 plantillas index.html por app | ✅ |
-| Migrar vistas a views.py con render() | ✅ |
-| Configurar WhiteNoise y STATIC_ROOT | ✅ |
-| Crear core/settings_prod.py borrador | ✅ |
-| Actualizar requirements.txt (gunicorn, psycopg2) | ✅ |
-| Crear tests/test_w02_mvt.py — 12 tests OK | ✅ |
-| HU-E1-03 Repositorio GitHub: avance W02 commiteado | ✅ |
+| Crear templates/base.html con Fable 5 AzulERP | Hecho |
+| Crear 5 plantillas index.html por app | Hecho |
+| Migrar vistas a views.py con render() | Hecho |
+| Configurar WhiteNoise y STATIC_ROOT | Hecho |
+| Crear core/settings_prod.py borrador | Hecho |
+| Actualizar requirements.txt | Hecho |
+| Crear tests/test_w02_mvt.py | Hecho |
 
 
 ## Criterios de aceptación del Sprint 0
