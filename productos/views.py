@@ -6,6 +6,7 @@ Escritura (Create/Update/Delete) se implementa en W08.
 """
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.urls import reverse_lazy
 from django.views.generic import (
     ListView, DetailView, CreateView, UpdateView, DeleteView
@@ -75,11 +76,13 @@ class ProductoUpdateView(LoginRequiredMixin, UpdateView):
         return response
 
 
-class ProductoDeleteView(LoginRequiredMixin, DeleteView):
+class ProductoDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     model = Producto
     template_name = 'productos/eliminar.html'
     pk_url_kwarg = 'producto_id'
     success_url = reverse_lazy('productos:lista')
+    permission_required = 'productos.delete_producto'
+    raise_exception = True
 
     def form_valid(self, form):
         nombre = self.object.nombre

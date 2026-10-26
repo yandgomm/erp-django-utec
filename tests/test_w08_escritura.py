@@ -19,7 +19,7 @@ class ProductoEscrituraTest(TestCase):
     """Pruebas de creación, edición y eliminación de productos."""
 
     def setUp(self):
-        self.user = User.objects.create_user(
+        self.user = User.objects.create_superuser(
             'testuser', password='testpass123'
         )
         self.cat = Categoria.objects.create(nombre='Cat Test')
@@ -161,7 +161,7 @@ class VentaEscrituraTest(TestCase):
     """Pruebas de creación y protección de ventas."""
 
     def setUp(self):
-        self.user = User.objects.create_user(
+        self.user = User.objects.create_superuser(
             'userV', password='pass'
         )
         cat = Categoria.objects.create(nombre='Cat')

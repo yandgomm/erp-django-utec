@@ -14,17 +14,22 @@ ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=[])
 
 # ── Apps instaladas ───────────────────────────────────────────────────────
 INSTALLED_APPS = [
-    'jazzmin', 
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     # Terceros
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
     'rest_framework',
     'whitenoise.runserver_nostatic',
     # Apps del ERP
+    'core',
     'clientes',
     'proveedores',
     'productos',
@@ -42,6 +47,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'core.urls'
@@ -196,3 +202,17 @@ JAZZMIN_UI_TWEAKS = {
         'success':   'btn-success',
     },
 }
+
+SITE_ID = 1
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+ACCOUNT_LOGIN_METHODS          = {'username'}
+ACCOUNT_EMAIL_REQUIRED         = False
+ACCOUNT_EMAIL_VERIFICATION     = 'none'
+ACCOUNT_LOGOUT_ON_GET          = True
+ACCOUNT_SESSION_REMEMBER       = True
+LOGOUT_REDIRECT_URL = '/'

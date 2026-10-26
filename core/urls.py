@@ -30,4 +30,5 @@ urlpatterns = [
     path('productos/',   include('productos.urls',   namespace='productos')),
     path('ventas/',      include('ventas.urls',       namespace='ventas')),
     path('reportes/',    include('reportes.urls',     namespace='reportes')),
+    path('accounts/', include('allauth.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

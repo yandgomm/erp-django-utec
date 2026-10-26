@@ -6,6 +6,7 @@ Escritura (Create/Update/Delete): W08.
 """
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.urls import reverse_lazy
 from django.views.generic import (
     ListView,
@@ -78,8 +79,9 @@ class ClienteUpdateView(LoginRequiredMixin, UpdateView):
         )
         return response
 
-
-class ClienteDeleteView(LoginRequiredMixin, DeleteView):
+class ClienteDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    permission_required = 'clientes.delete_cliente'
+    raise_exception = True
     model = Cliente
     template_name = 'clientes/eliminar.html'
     pk_url_kwarg = 'cliente_id'

@@ -8,9 +8,14 @@ from django.views.generic import DetailView, ListView
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views.generic import DeleteView
+from django.contrib.auth.decorators import (
+    login_required,
+    permission_required,
+)
 
 from .forms import DetalleVentaForm, VentaForm
 from .models import DetalleVenta, Venta
@@ -51,7 +56,8 @@ class VentaDetailView(DetailView):
             .prefetch_related('detalles__producto')
         )
 
-
+@login_required
+@permission_required('ventas.add_venta', raise_exception=True)
 def crear_venta(request):
     if not request.user.is_authenticated:
         return redirect(
@@ -81,7 +87,9 @@ def crear_venta(request):
     })
 
 
-class VentaDeleteView(LoginRequiredMixin, DeleteView):
+class VentaDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    permission_required = 'ventas.delete_venta'
+    raise_exception = True
     model = Venta
     template_name = 'ventas/eliminar.html'
     pk_url_kwarg = 'venta_id'
