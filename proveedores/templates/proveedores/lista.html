@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Proveedores{% endblock %}
+{% block nav_proveedores %}active{% endblock %}
+
+{% block content %}
+<div class="erp-page-title">
+    <h2>🏭 Proveedores</h2>
+</div>
+
+{% if proveedores %}
+<table class="erp-table">
+    <thead>
+        <tr>
+            <th>#</th><th>Nombre</th><th>Contacto</th>
+            <th>Correo</th><th>Estado</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for p in proveedores %}
+        <tr>
+            <td><code>{{ p.pk }}</code></td>
+            <td>
+                <a href="{% url 'proveedores:detalle' p.pk %}"
+                   style="color:var(--clr-royal);font-weight:600;">
+                    {{ p.nombre }}
+                </a>
+            </td>
+            <td>{{ p.contacto|default:"—" }}</td>
+            <td>{{ p.correo }}</td>
+            <td>
+                {% if p.activo %}
+                    <span class="badge-erp-active">Activo</span>
+                {% else %}
+                    <span class="badge-erp-inactive">Inactivo</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div class="erp-alert-info">No hay proveedores registrados aún.</div>
+{% endif %}
+{% endblock %}

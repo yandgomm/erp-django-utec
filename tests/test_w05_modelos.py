@@ -6,6 +6,10 @@ casos borde se implementa en W06 (≥ 15 tests).
 
 Ejecutar con:
     python manage.py test tests.test_w05_modelos --verbosity=2
+
+Resultado esperado:
+    Ran 10 tests in X.XXXs
+    OK
 """
 from decimal import Decimal
 
