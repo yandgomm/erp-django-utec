@@ -4,10 +4,14 @@
 ListView y DetailView con select_related y paginación.
 Escritura (Create/Update/Delete) se implementa en W08.
 """
-from django.views.generic import DetailView, ListView
-
+from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.urls import reverse_lazy
+from django.views.generic import (
+    ListView, DetailView, CreateView, UpdateView, DeleteView
+)
 from .models import Producto
-
+from .forms import ProductoForm
 
 class ProductoListView(ListView):
     """Lista paginada de productos activos."""
@@ -38,3 +42,50 @@ class ProductoDetailView(DetailView):
     def get_queryset(self):
         """Pre-carga FKs para evitar queries adicionales en el template."""
         return Producto.objects.select_related('categoria', 'proveedor')
+
+
+class ProductoCreateView(LoginRequiredMixin, CreateView):
+    model = Producto
+    form_class = ProductoForm
+    template_name = 'productos/crear.html'
+    success_url = reverse_lazy('productos:lista')
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(
+            self.request,
+            f'Producto "{self.object.nombre}" creado exitosamente.'
+        )
+        return response
+
+
+class ProductoUpdateView(LoginRequiredMixin, UpdateView):
+    model = Producto
+    form_class = ProductoForm
+    template_name = 'productos/editar.html'
+    pk_url_kwarg = 'producto_id'
+    success_url = reverse_lazy('productos:lista')
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(
+            self.request,
+            f'Producto "{self.object.nombre}" actualizado.'
+        )
+        return response
+
+
+class ProductoDeleteView(LoginRequiredMixin, DeleteView):
+    model = Producto
+    template_name = 'productos/eliminar.html'
+    pk_url_kwarg = 'producto_id'
+    success_url = reverse_lazy('productos:lista')
+
+    def form_valid(self, form):
+        nombre = self.object.nombre
+        response = super().form_valid(form)
+        messages.success(
+            self.request,
+            f'Producto "{nombre}" eliminado.'
+        )
+        return response
