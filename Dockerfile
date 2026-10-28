@@ -37,7 +37,7 @@ EXPOSE $PORT
 
 # Migrar, crear grupos y arrancar Gunicorn
 CMD python manage.py migrate --no-input \
-    && python manage.py crear_grupos \
+    && (python manage.py crear_grupos || echo "crear_grupos falló, continuando") \
     && gunicorn core.wsgi \
        --bind 0.0.0.0:$PORT \
        --workers 2 \
