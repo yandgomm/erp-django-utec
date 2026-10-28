@@ -32,8 +32,14 @@ RUN python manage.py collectstatic --no-input \
 EXPOSE $PORT
 
 # Comando por defecto: iniciar Gunicorn
-CMD gunicorn core.wsgi \
-    --bind 0.0.0.0:$PORT \
-    --workers 2 \
-    --timeout 120 \
-    --log-file -
+# Exponer el puerto
+EXPOSE $PORT
+
+# Migrar, crear grupos y arrancar Gunicorn
+CMD python manage.py migrate --no-input \
+    && python manage.py crear_grupos \
+    && gunicorn core.wsgi \
+       --bind 0.0.0.0:$PORT \
+       --workers 2 \
+       --timeout 120 \
+       --log-file -
