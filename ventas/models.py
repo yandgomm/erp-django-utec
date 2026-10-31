@@ -1,23 +1,15 @@
 # ventas/models.py
-"""Modelos de la app ventas — Espiral 2 W05/W06.
-
-Decisiones de diseño aplicadas:
-    D-03: Venta.cliente  → PROTECT.
-    D-04: Venta.total    → @property calculada, no campo de BD.
-    D-05: DetalleVenta.producto → PROTECT.
-    D-06: DetalleVenta.precio_unitario → almacenado (histórico).
-"""
 from decimal import Decimal
 
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
 
-from clientes.models  import Cliente
+from clientes.models import Cliente
 from productos.models import Producto
 
 
-# ── Venta ─────────────────────────────────────────────────────────────────
+# -- Venta ------------------------------------------------------------------
 
 class Venta(models.Model):
     """Encabezado de una venta interna.
@@ -28,11 +20,11 @@ class Venta(models.Model):
 
     cliente = models.ForeignKey(
         Cliente,
-        on_delete=models.PROTECT,      # D-03
+        on_delete=models.PROTECT,      # D-03: no borrar cliente con ventas
         related_name='ventas',
         verbose_name='Cliente'
     )
-    fecha   = models.DateTimeField(
+    fecha = models.DateTimeField(
         auto_now_add=True, verbose_name='Fecha'
     )
 
@@ -42,46 +34,50 @@ class Venta(models.Model):
         ordering            = ['-fecha']
 
     def __str__(self) -> str:
-        return f"Venta #{self.pk} — {self.cliente} ({self.fecha:%d/%m/%Y})"
+        return f"Venta #{self.pk} - {self.cliente} ({self.fecha:%d/%m/%Y})"
 
     @property
     def total(self) -> Decimal:
-        """Total de la venta: suma de subtotales de cada línea (D-04)."""
+        """Total de la venta: suma de subtotales de cada linea (D-04)."""
         return sum(
             (d.subtotal for d in self.detalles.all()),
             Decimal('0.00')
         )
 
 
-# ── DetalleVenta ───────────────────────────────────────────────────────────
+# -- DetalleVenta -----------------------------------------------------------
 
 class DetalleVenta(models.Model):
-    """Línea de producto dentro de una venta.
+    """Linea de producto dentro de una venta.
 
     precio_unitario se almacena (D-06) porque el precio del producto
-    puede cambiar después de la venta.
+    puede cambiar despues de la venta; se necesita el historico exacto.
     """
 
-    venta           = models.ForeignKey(
+    venta = models.ForeignKey(
         Venta,
         on_delete=models.CASCADE,
         related_name='detalles',
         verbose_name='Venta'
     )
-    producto        = models.ForeignKey(
+    producto = models.ForeignKey(
         Producto,
-        on_delete=models.PROTECT,      # D-05
+        on_delete=models.PROTECT,      # D-05: no borrar producto con ventas
         related_name='detalles_venta',
         verbose_name='Producto'
     )
-    cantidad        = models.PositiveIntegerField(
+    cantidad = models.PositiveIntegerField(
+        validators=[MinValueValidator(1)],
         verbose_name='Cantidad'
     )
     precio_unitario = models.DecimalField(
         max_digits=10,
         decimal_places=2,
+        null=True,
+        blank=True,
         verbose_name='Precio unitario',
-        help_text='Precio al momento de la venta (D-06).'
+        help_text='Precio al momento de la venta (D-06). '
+                  'Si se deja vacio, se toma del producto.'
     )
 
     class Meta:
@@ -89,21 +85,15 @@ class DetalleVenta(models.Model):
         verbose_name_plural = 'Detalles de venta'
 
     def __str__(self) -> str:
-        return f"{self.producto.nombre} × {self.cantidad}"
+        return f"{self.producto.nombre} x {self.cantidad}"
 
     @property
     def subtotal(self) -> Decimal:
-        """Subtotal de la línea: cantidad × precio_unitario."""
+        """Subtotal de la linea: cantidad x precio_unitario."""
         return self.precio_unitario * self.cantidad
 
-    def save(self, *args, **kwargs) -> None:
-        """Captura el precio actual del producto si no se especificó."""
-        if self.precio_unitario is None:
-            self.precio_unitario = self.producto.precio
-        super().save(*args, **kwargs)
-
     def clean(self) -> None:
-        """Validación de negocio para línea de detalle.
+        """Validacion de negocio para linea de detalle.
 
         Raises:
             ValidationError: si cantidad < 1.
@@ -113,11 +103,17 @@ class DetalleVenta(models.Model):
                 {'cantidad': 'La cantidad debe ser al menos 1.'}
             )
 
+    def save(self, *args, **kwargs):
+        """Copia el precio del producto si no se indico uno."""
+        if self.precio_unitario is None and self.producto_id:
+            self.precio_unitario = self.producto.precio
+        super().save(*args, **kwargs)
 
-# ── Pedido ─────────────────────────────────────────────────────────────────
+
+# -- Pedido -----------------------------------------------------------------
 
 class Pedido(models.Model):
-    """Orden de compra del canal e-commerce (Espiral 5)."""
+    """Orden de compra del canal e-commerce (se implementa en la Espiral 5)."""
 
     ESTADO_CHOICES = [
         ('pendiente',  'Pendiente de pago'),
@@ -130,28 +126,28 @@ class Pedido(models.Model):
     numero_pedido = models.CharField(
         max_length=20,
         unique=True,
-        verbose_name='Número de pedido',
+        verbose_name='Numero de pedido',
         help_text='Formato sugerido: PED-YYYY-NNNN'
     )
-    cliente       = models.ForeignKey(
+    cliente = models.ForeignKey(
         Cliente,
         on_delete=models.PROTECT,
         related_name='pedidos',
         verbose_name='Cliente'
     )
-    estado        = models.CharField(
+    estado = models.CharField(
         max_length=20,
         choices=ESTADO_CHOICES,
         default='pendiente',
         verbose_name='Estado'
     )
-    fecha_pedido  = models.DateTimeField(
+    fecha_pedido = models.DateTimeField(
         auto_now_add=True, verbose_name='Fecha del pedido'
     )
     fecha_entrega = models.DateField(
         null=True, blank=True, verbose_name='Fecha de entrega'
     )
-    total_pagado  = models.DecimalField(
+    total_pagado = models.DecimalField(
         max_digits=10,
         decimal_places=2,
         null=True,
@@ -166,7 +162,7 @@ class Pedido(models.Model):
         ordering            = ['-fecha_pedido']
 
     def __str__(self) -> str:
-        return f"{self.numero_pedido} — {self.cliente} [{self.get_estado_display()}]"
+        return f"{self.numero_pedido} - {self.cliente} [{self.get_estado_display()}]"
 
     def clean(self) -> None:
         """Valida que la fecha de entrega no sea anterior al pedido.

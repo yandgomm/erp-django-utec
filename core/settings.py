@@ -21,15 +21,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.sites',
+    'django.contrib.sites',        # ← requerido por allauth
     # Terceros
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
+    'allauth',                     # ← nuevo
+    'allauth.account',             # ← nuevo
+    'allauth.socialaccount',       # ← nuevo (para OAuth futuro)
     'rest_framework',
+    'rest_framework.authtoken',    # ← W10: tokens de autenticación
     'whitenoise.runserver_nostatic',
     # Apps del ERP
-    'core',
     'clientes',
     'proveedores',
     'productos',
@@ -47,7 +47,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'allauth.account.middleware.AccountMiddleware',
+    'allauth.account.middleware.AccountMiddleware',   # ← agregar al final
 ]
 
 ROOT_URLCONF = 'core.urls'
@@ -99,10 +99,17 @@ LOGIN_REDIRECT_URL  = '/productos/'
 LOGOUT_REDIRECT_URL = '/'
 
 # ── DRF ──────────────────────────────────────────────────────────────────
+# core/settings.py — reemplazar la configuración REST_FRAMEWORK de W01:
 REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',   # para el navegador
+        'rest_framework.authentication.TokenAuthentication',     # para clientes externos
+    ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticatedOrReadOnly',
     ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20,
 }
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -203,16 +210,25 @@ JAZZMIN_UI_TWEAKS = {
     },
 }
 
+# ── DJANGO SITES (requerido por allauth) ──────────────────────────────────
 SITE_ID = 1
 
+# ── AUTHENTICATION BACKENDS ───────────────────────────────────────────────
 AUTHENTICATION_BACKENDS = [
+    # Backend estándar de Django (username + password en admin)
     'django.contrib.auth.backends.ModelBackend',
+    # Backend de allauth (permite login por email también)
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
-ACCOUNT_LOGIN_METHODS          = {'username'}
-ACCOUNT_EMAIL_REQUIRED         = False
-ACCOUNT_EMAIL_VERIFICATION     = 'none'
-ACCOUNT_LOGOUT_ON_GET          = True
-ACCOUNT_SESSION_REMEMBER       = True
+# ── ALLAUTH: configuración para desarrollo académico ──────────────────────
+ACCOUNT_LOGIN_METHODS          = {'username'}   # login por username
+ACCOUNT_EMAIL_REQUIRED         = False          # no obligar correo
+ACCOUNT_EMAIL_VERIFICATION     = 'none'         # no enviar email de verificación
+ACCOUNT_LOGOUT_ON_GET          = True           # logout sin confirmar (dev)
+ACCOUNT_SESSION_REMEMBER       = True           # recordar sesión
+
+# LOGIN_URL y LOGIN_REDIRECT_URL ya definidos en W01:
+# LOGIN_URL           = '/accounts/login/'
+# LOGIN_REDIRECT_URL  = '/productos/'
 LOGOUT_REDIRECT_URL = '/'
